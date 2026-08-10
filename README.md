@@ -95,6 +95,11 @@ source venv/bin/activate</code></pre>
 
 <hr />
 
+<h2>🤖 AI Assistance Disclaimer</h2>
+<p>Portions of this codebase, documentation, and interface layout were developed with the assistance of artificial intelligence (AI) tools. The architecture, implementation, and logic have been reviewed and tested for use in this telepresence robot control system.</p>
+
+<hr />
+
 <h2>📜 License &amp; Usage Rights</h2>
 <p>This project is licensed under the <strong>PolyForm Noncommercial License 1.0.0</strong>.</p>
 <ul>
