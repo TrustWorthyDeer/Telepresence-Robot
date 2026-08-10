@@ -90,10 +90,8 @@
 
 <h2>📋 To Implement (Pending Hardware Integration)</h2>
 <ul>
-  <li><strong>GPIO &amp; Power Wiring:</strong> Complete physical assembly and circuit integration, ensuring the LM2596 converters are properly tuned to 5.0V and 6.0V respectively before connecting the Pi and motor driver.</li>
-  <li><strong>Charging Subsystem Test:</strong> Validate the XL4015 current/voltage limiting (12.6V) under load when connected to a depleted 3S battery pack.</li>
   <li><strong>Dashboard Telemetry (Optional):</strong> If battery monitoring is desired in the UI in the future, integrate an I2C ADC (like an INA219) to read the 3S voltage pack directly to the Pi.</li>
-  <li><strong>Fail-Safe Watchdog Tuning:</strong> Calibrate the Pi-side Python software watchdog to instantly zero out PWM signals to the ZK-5AD if WebSocket communication from the browser is interrupted.</li>
+  <li><strong>Bidirectional Audio Integration:</strong> Wire the MAX98357A I2S amplifier (connected to 3W 4Ohm speaker) and the INMP441 I2S microphone to the Raspberry Pi's standard I2S bus pins, and validate full duplex audio streaming inside the web cockpit.</li>
 </ul>
 
 <hr />
@@ -141,7 +139,7 @@
 <ol>
   <li>
     Clone the repository to your Raspberry Pi:
-    <pre><code>git clone https://github.com/YOUR_USERNAME/telepresence-robot.git
+    <pre><code>git clone https://github.com/TrustWorthyDeer/telepresence-robot.git
 cd telepresence-robot</code></pre>
   </li>
   <li>
