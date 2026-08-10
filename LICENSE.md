@@ -24,7 +24,7 @@ Distributing
 You may distribute copies of the software under the terms of this license, provided
 that you include this notice and copyright statement with every copy:
 
-Copyright (c) 2026 Ibrahim. All rights reserved.
+Copyright (c) 2026 TrustWorthyDeer. All rights reserved.
 
 NOTICES
 THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
