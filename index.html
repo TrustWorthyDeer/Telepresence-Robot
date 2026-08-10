@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport"
+    content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>Telepresence Robot</title>
+  <link rel="stylesheet" href="/static/css/style.css">
+</head>
+
+<body>
+
+  <!-- Offline Connect Overlay -->
+  <div id="connectOverlay" class="center-overlay">
+    <div class="connect-card">
+      <h1>Robot Offline</h1>
+      <p>Tap to start video stream and mobile controls.</p>
+      <button id="connectBtn" class="btn-primary">Connect to Robot</button>
+    </div>
+  </div>
+
+  <!-- Main Viewport Area -->
+  <div class="viewport">
+
+    <!-- Top Status Bar & Quick Actions -->
+    <header class="top-bar">
+      <div class="bar-left">
+        <span id="status" class="badge">Disconnected</span>
+        <span id="telemetry" class="badge">Thr: 0.00 | Str: 0.00</span>
+      </div>
+      <div class="bar-right">
+        <button id="lightsBtn" class="btn-icon">Headlights</button>
+        <button id="floodBtn" class="btn-icon">Flood</button>
+        <button id="disconnectBtn" class="btn-danger hidden">Disconnect</button>
+      </div>
+    </header>
+
+    <!-- Center 4:3 Video Stage -->
+    <main class="video-container">
+      <video id="background-video" autoplay playsinline muted></video>
+      <audio id="audioElement" autoplay></audio>
+
+      <svg style="display: none;">
+        <filter id="bgr-to-rgb">
+          <feColorMatrix type="matrix" values="
+                    0 0 1 0 0
+                    0 1 0 0 0
+                    1 0 0 0 0
+                    0 0 0 1 0" />
+        </filter>
+      </svg>
+    </main>
+
+    <!-- Mobile Dual-Thumb Gamepad Controls -->
+    <div id="controlsPanel" class="controls-layer hidden">
+
+      <!-- Left Thumb: Throttle -->
+      <div class="thumb-zone left-zone">
+        <div class="control-card">
+          <div class="label">Throttle</div>
+          <div class="track vertical">
+            <div class="thumb" id="throttle"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Center: STOP Button -->
+      <div class="center-zone">
+        <button id="stopBtn" class="btn-stop">STOP</button>
+      </div>
+
+      <!-- Right Thumb: Steering -->
+      <div class="thumb-zone right-zone">
+        <div class="control-card">
+          <div class="label">Steering</div>
+          <div class="track horizontal">
+            <div class="thumb" id="steering"></div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+  </div>
+
+  <script src="/static/js/webrtc.js"></script>
+  <script src="/static/js/script.js"></script>
+  <script src="/static/js/websocket.js"></script>
+</body>
+
+</html>

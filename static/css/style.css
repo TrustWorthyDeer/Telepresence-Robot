@@ -1,0 +1,298 @@
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    user-select: none;
+    -webkit-user-select: none;
+}
+
+body,
+html {
+    width: 100dvw;
+    height: 100dvh;
+    background-color: #000;
+    color: #fff;
+    overflow: hidden;
+    touch-action: none;
+}
+
+.viewport {
+    position: relative;
+    width: 100dvw;
+    height: 100dvh;
+    display: flex;
+    flex-direction: column;
+    padding-top: env(safe-area-inset-top);
+    padding-bottom: env(safe-area-inset-bottom);
+    padding-left: env(safe-area-inset-left);
+    padding-right: env(safe-area-inset-right);
+}
+
+/* --- Top Header Bar --- */
+.top-bar {
+    position: absolute;
+    top: env(safe-area-inset-top);
+    left: env(safe-area-inset-left);
+    right: env(safe-area-inset-right);
+    min-height: 48px;
+    padding: 6px 12px;
+    background: rgba(18, 18, 20, 0.85);
+    backdrop-filter: blur(10px);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    z-index: 50;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.bar-left,
+.bar-right {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.badge {
+    font-family: monospace;
+    font-size: 0.78rem;
+    padding: 4px 8px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 4px;
+    color: #00ffcc;
+    white-space: nowrap;
+}
+
+/* --- 4:3 Video Container --- */
+.video-container {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #050505;
+    overflow: hidden;
+}
+
+#background-video {
+    width: 100%;
+    height: 100%;
+    max-width: 100%;
+    max-height: 100%;
+    aspect-ratio: 4 / 3;
+    object-fit: contain;
+    filter: url(#bgr-to-rgb);
+    transform: rotate(180deg);
+}
+
+/* --- Controls Layer Overlay --- */
+.controls-layer {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    padding: 16px 20px calc(12px + env(safe-area-inset-bottom)) 20px;
+    z-index: 40;
+}
+
+.thumb-zone,
+.center-zone {
+    pointer-events: auto;
+}
+
+.control-card {
+    background: rgba(18, 18, 22, 0.85);
+    backdrop-filter: blur(12px);
+    padding: 10px 12px;
+    border-radius: 16px;
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.6);
+}
+
+.label {
+    font-size: 0.65rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    color: #aaa;
+}
+
+/* Base Track & Thumb Dimensions (Portrait Default) */
+.track {
+    background: rgba(255, 255, 255, 0.12);
+    border: 2px solid rgba(255, 255, 255, 0.25);
+    border-radius: 24px;
+    position: relative;
+    touch-action: none;
+    cursor: pointer;
+}
+
+.track.vertical {
+    width: 48px;
+    height: 140px;
+}
+
+.track.horizontal {
+    width: 140px;
+    height: 48px;
+}
+
+.thumb {
+    position: absolute;
+    width: 38px;
+    height: 38px;
+    background: #00ffcc;
+    border-radius: 50%;
+    transform: translate(-50%, -50%);
+    box-shadow: 0 0 12px rgba(0, 255, 204, 0.6);
+    pointer-events: none;
+}
+
+/* Stop Button */
+.center-zone {
+    margin-bottom: 6px;
+}
+
+.btn-stop {
+    background: #ff3344;
+    color: #fff;
+    border: none;
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    font-weight: 900;
+    font-size: 0.8rem;
+    box-shadow: 0 0 15px rgba(255, 51, 68, 0.5);
+    cursor: pointer;
+}
+
+.btn-stop:active {
+    transform: scale(0.92);
+}
+
+/* Header Buttons */
+.btn-icon,
+.btn-danger,
+.btn-primary {
+    border: none;
+    border-radius: 6px;
+    padding: 6px 10px;
+    font-weight: 600;
+    font-size: 0.75rem;
+    cursor: pointer;
+    background: rgba(255, 255, 255, 0.15);
+    color: #fff;
+    white-space: nowrap;
+}
+
+.btn-icon.active {
+    background: #00ffcc;
+    color: #000;
+}
+
+.btn-danger {
+    background: #ff3344;
+}
+
+/* Connect Modal Overlay */
+.center-overlay {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: rgba(0, 0, 0, 0.85);
+    z-index: 100;
+}
+
+.connect-card {
+    text-align: center;
+    background: #18181b;
+    padding: 24px;
+    border-radius: 16px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    max-width: 280px;
+}
+
+.btn-primary {
+    background: #00ffcc;
+    color: #000;
+    width: 100%;
+    padding: 12px;
+    font-size: 0.9rem;
+    margin-top: 12px;
+}
+
+.hidden {
+    display: none !important;
+}
+
+/* ==========================================================================
+   PORTRAIT MODE ADAPTATIONS (Header Expansion)
+   ========================================================================== */
+@media (orientation: portrait) {
+    .top-bar {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 6px;
+        padding-top: max(8px, env(safe-area-inset-top));
+        padding-bottom: 8px;
+    }
+
+    .bar-left {
+        justify-content: space-between;
+        width: 100%;
+    }
+
+    .bar-right {
+        justify-content: flex-end;
+        width: 100%;
+    }
+}
+
+/* ==========================================================================
+   LANDSCAPE MODE ADAPTATIONS (Enlarged Controls)
+   ========================================================================== */
+@media (orientation: landscape) {
+    .top-bar {
+        height: 42px;
+        padding: 0 16px;
+    }
+
+    .controls-layer {
+        padding: 12px 24px calc(8px + env(safe-area-inset-bottom)) 24px;
+    }
+
+    .control-card {
+        padding: 8px 12px;
+        border-radius: 18px;
+        gap: 6px;
+    }
+
+    /* Longer, chunkier tracks specifically optimized for thumb driving in landscape */
+    .track.vertical {
+        width: 52px;
+        height: 160px;
+    }
+
+    .track.horizontal {
+        width: 190px;
+        height: 52px;
+    }
+
+    .thumb {
+        width: 44px;
+        height: 44px;
+    }
+
+    .btn-stop {
+        width: 60px;
+        height: 60px;
+        font-size: 0.85rem;
+    }
+}

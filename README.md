@@ -1,0 +1,114 @@
+<div align="center">
+  <h1>🤖 WebRTC Telepresence Robot Controller</h1>
+  <p>An ultra-low-latency, mobile-responsive WebRTC &amp; WebSocket control suite for Raspberry Pi telepresence robots.</p>
+  <p>
+    <img src="https://img.shields.io/badge/Python-3.9+-3776AB?style=for-the-badge&amp;logo=python&amp;logoColor=white" alt="Python" />
+    <img src="https://img.shields.io/badge/WebRTC-WHEP-333333?style=for-the-badge&amp;logo=webrtc&amp;logoColor=white" alt="WebRTC" />
+    <img src="https://img.shields.io/badge/aiohttp-AsyncIO-2C5BB4?style=for-the-badge" alt="aiohttp" />
+    <img src="https://img.shields.io/badge/License-Non--Commercial-red?style=for-the-badge" alt="License" />
+  </p>
+</div>
+
+<hr />
+
+<h2>🌟 Key Features</h2>
+<ul>
+  <li>📹 <strong>Full 4:3 Uncropped Sensor Feed:</strong> Configured for native <code>1280x960 @ 60fps</code> camera capture to maximize vertical ground visibility ahead of the robot.</li>
+  <li>🚀 <strong>Embedded MediaMTX Subprocess:</strong> The Python backend automatically manages, launches, and monitors the MediaMTX binary—no separate terminal processes required.</li>
+  <li>⚡ <strong>Ultra-Low Latency Video &amp; Audio:</strong> Hardware-accelerated WebRTC (WHEP) video streaming and bidirectional WebSocket audio.</li>
+  <li>📱 <strong>Mobile Dual-Thumb Cockpit UI:</strong> Touch-first joystick tracks with dynamic viewport notch handling (<code>dvh</code>) and custom landscape/portrait views.</li>
+  <li>🔒 <strong>Single-Client Lockout:</strong> Hardware safety enforcement ensuring only one active driver can control the robot at a time.</li>
+  <li>📡 <strong>10Hz Telemetry &amp; Safety Watchdog:</strong> Continuous WebSocket heartbeat loop that automatically halts motors if signal is lost.</li>
+</ul>
+
+<hr />
+
+<h2>🏗 System Architecture</h2>
+<pre><code>+-----------------------+               +-------------------------------------------+
+|     Client Browser    |               |               Raspberry Pi                |
+|                       |               |                                           |
+|  [ Full-Screen Feed ] &lt;---------------+-- WHEP (Video) --+                        |
+|                       |               |                  |                        |
+|                       |  WS Control   |  +---------------v---------------------+  |
+|  [ Dual-Thumb Sticks] +--------------&gt;--+ Python Backend (`main.py`)          |  |
+|                       |   (100ms)     |  | - Automatically spawns MediaMTX     |  |
+|                       |               |  | - Single-Client Enforcement         |  |
+|                       |               |  | - Motor Hardware Drivers            |  |
++-----------------------+               |  +-------------------------------------+  |
+                                        +-------------------------------------------+</code></pre>
+
+<hr />
+
+<h2>📁 Repository Structure</h2>
+<pre><code>├── main.py                 # Main entrypoint (launches MediaMTX &amp; HTTP/WS server)
+├── mediamtx                # MediaMTX executable binary for Pi architecture
+├── mediamtx.yml            # MediaMTX camera and streaming configuration
+├── requirements.txt        # Minimal Python dependencies
+├── LICENSE                 # Non-Commercial License (PolyForm Noncommercial 1.0.0)
+├── THIRD_PARTY_LICENSES.md # MediaMTX and third-party attributions
+├── index.html              # Mobile/Desktop Web Cockpit UI
+├── robot/
+│   └── websocket.py        # Async Python WebSocket handler &amp; safety lock
+└── static/
+    ├── css/
+    │   └── style.css       # Responsive touch layout &amp; viewport CSS
+    └── js/
+        ├── script.js       # Touch joystick UI logic
+        ├── webrtc.js       # WHEP video &amp; WebSocket audio client
+        └── websocket.js    # Telemetry connection &amp; heartbeat loop</code></pre>
+
+<hr />
+
+<h2>🚀 Installation &amp; Setup</h2>
+
+<h3>1. Prerequisites</h3>
+<ul>
+  <li><strong>Hardware:</strong> Raspberry Pi (3B+, 4, 5, or Zero 2W) running Raspberry Pi OS.</li>
+  <li><strong>Camera:</strong> Raspberry Pi Camera Module connected and enabled.</li>
+  <li><strong>MediaMTX Binary:</strong> Ensure the <code>mediamtx</code> binary matching your Raspberry Pi architecture (e.g., <code>linux_arm64</code> or <code>linux_armv7</code>) is placed in the repository root directory and made executable:
+    <pre><code>chmod +x mediamtx</code></pre>
+  </li>
+</ul>
+
+<hr />
+
+<h3>2. Install Dependencies</h3>
+<ol>
+  <li>
+    Clone the repository to your Raspberry Pi:
+    <pre><code>git clone https://github.com/YOUR_USERNAME/telepresence-robot.git
+cd telepresence-robot</code></pre>
+  </li>
+  <li>
+    Re-create a clean virtual environment and activate it:
+    <pre><code>python3 -m venv venv
+source venv/bin/activate</code></pre>
+  </li>
+  <li>
+    Install required packages:
+    <pre><code>pip install -r requirements.txt</code></pre>
+  </li>
+</ol>
+
+<hr />
+
+<h3>3. Execution</h3>
+<p>Run the main application script:</p>
+<pre><code>python3 main.py</code></pre>
+
+<blockquote>
+  <p><strong>Note:</strong> Executing <code>main.py</code> automatically initializes and manages the background MediaMTX instance, starts the WebSockets control pipeline, and serves the browser UI.</p>
+</blockquote>
+
+<p>Once running, access the controller from any smartphone or computer on the same network:</p>
+<pre><code>http://&lt;RASPBERRY_PI_IP&gt;:8080</code></pre>
+
+<hr />
+
+<h2>📜 License &amp; Usage Rights</h2>
+<p>This project is licensed under the <strong>PolyForm Noncommercial License 1.0.0</strong>.</p>
+<ul>
+  <li><strong>Non-Commercial Use Only:</strong> You are free to view, modify, and run this code for personal, educational, or research purposes.</li>
+  <li><strong>Commercial Restriction:</strong> Any commercial use, monetization, or incorporation into paid products/services is strictly prohibited.</li>
+</ul>
+<p>See the full text in the <a href="LICENSE">LICENSE</a> file. Third-party software licenses are acknowledged in <a href="THIRD_PARTY_LICENSES.md">THIRD_PARTY_LICENSES.md</a>.</p>
