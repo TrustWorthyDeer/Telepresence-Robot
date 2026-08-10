@@ -6,7 +6,7 @@ const steeringTrack = steeringThumb.parentElement;
 let throttle = 0;
 let steering = 0;
 
-const DEADZONE = 0.05;
+const DEADZONE = 0.2;
 
 let headlights = false;
 let floodlights = false;

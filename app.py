@@ -8,6 +8,9 @@ from robot.webrtc import websocket_handler as audio_ws_handler
 from robot.websocket import control_websocket_handler
 from robot.watchdog import watchdog_loop
 
+import robot.state as state
+from robot.motors import DirectPiMotorDriver
+
 async def index(request):
     """Serves the frontend HTML interface."""
     return web.FileResponse(os.path.join(os.path.dirname(__file__), "index.html"))
@@ -28,19 +31,51 @@ async def start_mediamtx(app):
     except FileNotFoundError:
         print(f"Error: Could not find MediaMTX binary at {mediamtx_path}")
 
+
+async def motor_control_loop(app):
+    """
+    Background task: Reads the central state every 50ms (20Hz) 
+    and applies it to the motor driver.
+    """
+    motor_driver = app["motor_driver"]
+    try:
+        while True:
+            try:
+                # 1. Read the latest state updated by WebSockets or Watchdog
+                throttle = state.robot_state.get("throttle", 0.0)
+                steering = state.robot_state.get("steering", 0.0)
+                
+                # 2. Send directly to hardware
+                motor_driver.set_motors(throttle=throttle, steering=steering)
+            except Exception as e:
+                print(f"[Motor Error] Failed to update motor PWM: {e}")
+            
+            # 3. Yield control back to the event loop (20Hz refresh rate)
+            await asyncio.sleep(0.05) 
+    except asyncio.CancelledError:
+        pass # Graceful exit on server shutdown
+
+
 async def start_background_tasks(app):
     """Starts Watchdog task in background."""
     app["watchdog_task"] = asyncio.create_task(watchdog_loop(app))
+    app["motor_task"] = asyncio.create_task(motor_control_loop(app))
 
 async def cleanup_background_tasks(app):
     """Cancels Watchdog task and MediaMTX on shutdown."""
     app["watchdog_task"].cancel()
+    app["motor_task"].cancel()
     await app["watchdog_task"]
+    await app["motor_task"]
 
 async def on_shutdown(app):
     """Frees hardware resources when the server stops."""
+    # Stop Motors safely
     print("Shutting down hardware resources...")
-    # 1. Terminate MediaMTX
+    print("Stopping Motors...")
+    app["motor_driver"].close()
+
+    # Terminate MediaMTX
     mtx_process = app.get("mediamtx_process")
     if mtx_process and mtx_process.poll() is None:
         print("Stopping MediaMTX...")
@@ -54,6 +89,8 @@ async def on_shutdown(app):
 
 def main():
     app = web.Application()
+
+    app["motor_driver"] = DirectPiMotorDriver(in1=18, in2=19, in3=12, in4=13)
     
     # Register the startup and teardown functions
     app.on_startup.append(start_mediamtx)
