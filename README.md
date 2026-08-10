@@ -24,6 +24,79 @@
 
 <hr />
 
+<h2>🛠 Hardware &amp; Architecture</h2>
+
+<h3>Bill of Materials (BOM) &amp; Components</h3>
+<table border="1" cellpadding="8" cellspacing="0" style="border-collapse: collapse; width: 100%;">
+  <thead>
+    <tr style="background-color: rgba(255,255,255,0.05);">
+      <th>Component</th>
+      <th>Description</th>
+      <th>Qty</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><strong>Main Controller</strong></td>
+      <td>Raspberry Pi (4, 5, or Zero 2W) running Raspberry Pi OS (hosts web backend &amp; video server)</td>
+      <td>1</td>
+    </tr>
+    <tr>
+      <td><strong>Motor Controller</strong></td>
+      <td>ESP32 Microcontroller (handles low-level PWM actuation &amp; hardware telemetry)</td>
+      <td>1</td>
+    </tr>
+    <tr>
+      <td><strong>Camera Module</strong></td>
+      <td>Raspberry Pi Camera Module (Wide-angle recommended, capturing 1280x960 @ 30fps)</td>
+      <td>1</td>
+    </tr>
+    <tr>
+      <td><strong>Motor Driver</strong></td>
+      <td>H-Bridge / DC Motor Driver Board connected to ESP32 PWM pins</td>
+      <td>1</td>
+    </tr>
+    <tr>
+      <td><strong>Power Monitoring</strong></td>
+      <td>Voltage and current sensor modules wired to ESP32 analog/I2C inputs</td>
+      <td>1 set</td>
+    </tr>
+    <tr>
+      <td><strong>Power Supply</strong></td>
+      <td>LiPo / Li-ion Battery pack with power distribution board</td>
+      <td>1</td>
+    </tr>
+    <tr>
+      <td><strong>Chassis</strong></td>
+      <td>Telepresence / differential drive robot chassis and motors</td>
+      <td>1 set</td>
+    </tr>
+  </tbody>
+</table>
+
+<h3>ESP32 Architecture &amp; Telemetry Bridge</h3>
+<p>The system utilizes a hybrid controller topology:</p>
+<ul>
+  <li><strong>Motor Control Pipeline:</strong> The Raspberry Pi receives high-level user commands from the web UI and forwards motor vectors to the <strong>ESP32</strong>. The ESP32 translates these into precise hardware PWM signals for the motor driver.</li>
+  <li><strong>Hardware Telemetry:</strong> The ESP32 continuously monitors battery charge percentage, voltage levels, and current draw, transmitting these telemetry metrics back upstream to the Raspberry Pi for dashboard integration.</li>
+</ul>
+
+<h3>Circuit Diagram &amp; Robot Photos</h3>
+<p><em>[Insert schematic diagram here outlining Pi-to-ESP32 communication, motor driver wiring, and sensor integration.]</em></p>
+<p><em>[Insert photos of the physical robot chassis and internal electronics bay here.]</em></p>
+
+<hr />
+
+<h2>📋 To Implement (Pending Hardware Integration)</h2>
+<ul>
+  <li><strong>ESP32-Pi Serial/UART Protocol:</strong> Finalize bi-directional packet framing over serial/USB to stream throttle/steering commands down and receive battery voltage/current metrics up.</li>
+  <li><strong>GPIO &amp; Sensor Wiring:</strong> Complete physical assembly and circuit integration between the Raspberry Pi, ESP32, motor drivers, and power monitoring sensors.</li>
+  <li><strong>Dashboard Telemetry Binding:</strong> Wire incoming battery charge, voltage, and current feedback payloads from the ESP32 backend into the web UI telemetry view.</li>
+  <li><strong>Fail-Safe Watchdog Tuning:</strong> Calibrate the ESP32-side safety timeout to immediately cut motor power if communication from the Raspberry Pi is interrupted.</li>
+</ul>
+
+<hr />
+
 <h2>📁 Repository Structure</h2>
 <pre><code>├── app.py                  # Main entrypoint (launches MediaMTX &amp; HTTP/WS server)
 ├── config.py               # Application configuration parameters
@@ -106,4 +179,4 @@ source venv/bin/activate</code></pre>
   <li><strong>Non-Commercial Use Only:</strong> You are free to view, modify, and run this code for personal, educational, or research purposes.</li>
   <li><strong>Commercial Restriction:</strong> Any commercial use, monetization, or incorporation into paid products/services is strictly prohibited.</li>
 </ul>
-<p>See the full text in the <a href="LICENSE">LICENSE</a> file. Third-party software licenses are acknowledged in <a href="THIRD_PARTY_LICENSES.md">THIRD_PARTY_LICENSES.md</a>.</p>
+<p>See the full text in the <a href="LICENSE.md">LICENSE</a> file. Third-party software licenses are acknowledged in <a href="THIRD_PARTY_LICENSES.md">THIRD_PARTY_LICENSES.md</a>.</p>
