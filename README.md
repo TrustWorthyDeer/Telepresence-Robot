@@ -5,6 +5,7 @@
     <img src="https://img.shields.io/badge/Python-3.9+-3776AB?style=for-the-badge&amp;logo=python&amp;logoColor=white" alt="Python" />
     <img src="https://img.shields.io/badge/WebRTC-WHEP-333333?style=for-the-badge&amp;logo=webrtc&amp;logoColor=white" alt="WebRTC" />
     <img src="https://img.shields.io/badge/aiohttp-AsyncIO-2C5BB4?style=for-the-badge" alt="aiohttp" />
+    <img src="https://img.shields.io/badge/Open%20Source-Yes-success?style=for-the-badge" alt="Open Source" />
     <img src="https://img.shields.io/badge/License-Non--Commercial-red?style=for-the-badge" alt="License" />
   </p>
 </div>
@@ -13,7 +14,7 @@
 
 <h2>🌟 Key Features</h2>
 <ul>
-  <li>📹 <strong>Full 4:3 Uncropped Sensor Feed:</strong> Configured for native <code>1280x960 @ 60fps</code> camera capture to maximize vertical ground visibility ahead of the robot.</li>
+  <li>📹 <strong>Full 4:3 Uncropped Sensor Feed:</strong> Configured for native <code>1280x960 @ 30fps</code> camera capture to maximize vertical ground visibility ahead of the robot.</li>
   <li>🚀 <strong>Embedded MediaMTX Subprocess:</strong> The Python backend automatically manages, launches, and monitors the MediaMTX binary—no separate terminal processes required.</li>
   <li>⚡ <strong>Ultra-Low Latency Video &amp; Audio:</strong> Hardware-accelerated WebRTC (WHEP) video streaming and bidirectional WebSocket audio.</li>
   <li>📱 <strong>Mobile Dual-Thumb Cockpit UI:</strong> Touch-first joystick tracks with dynamic viewport notch handling (<code>dvh</code>) and custom landscape/portrait views.</li>
@@ -23,24 +24,9 @@
 
 <hr />
 
-<h2>🏗 System Architecture</h2>
-<pre><code>+-----------------------+               +-------------------------------------------+
-|     Client Browser    |               |               Raspberry Pi                |
-|                       |               |                                           |
-|  [ Full-Screen Feed ] &lt;---------------+-- WHEP (Video) --+                        |
-|                       |               |                  |                        |
-|                       |  WS Control   |  +---------------v---------------------+  |
-|  [ Dual-Thumb Sticks] +--------------&gt;--+ Python Backend (`main.py`)          |  |
-|                       |   (100ms)     |  | - Automatically spawns MediaMTX     |  |
-|                       |               |  | - Single-Client Enforcement         |  |
-|                       |               |  | - Motor Hardware Drivers            |  |
-+-----------------------+               |  +-------------------------------------+  |
-                                        +-------------------------------------------+</code></pre>
-
-<hr />
-
 <h2>📁 Repository Structure</h2>
-<pre><code>├── main.py                 # Main entrypoint (launches MediaMTX &amp; HTTP/WS server)
+<pre><code>├── app.py                  # Main entrypoint (launches MediaMTX &amp; HTTP/WS server)
+├── config.py               # Application configuration parameters
 ├── mediamtx                # MediaMTX executable binary for Pi architecture
 ├── mediamtx.yml            # MediaMTX camera and streaming configuration
 ├── requirements.txt        # Minimal Python dependencies
@@ -48,6 +34,10 @@
 ├── THIRD_PARTY_LICENSES.md # MediaMTX and third-party attributions
 ├── index.html              # Mobile/Desktop Web Cockpit UI
 ├── robot/
+│   ├── audio.py            # Audio streaming module
+│   ├── state.py            # Robot state management
+│   ├── watchdog.py         # Safety watchdog and heartbeat monitor
+│   ├── webrtc.py           # WebRTC / WHEP stream handler
 │   └── websocket.py        # Async Python WebSocket handler &amp; safety lock
 └── static/
     ├── css/
@@ -94,10 +84,10 @@ source venv/bin/activate</code></pre>
 
 <h3>3. Execution</h3>
 <p>Run the main application script:</p>
-<pre><code>python3 main.py</code></pre>
+<pre><code>python3 app.py</code></pre>
 
 <blockquote>
-  <p><strong>Note:</strong> Executing <code>main.py</code> automatically initializes and manages the background MediaMTX instance, starts the WebSockets control pipeline, and serves the browser UI.</p>
+  <p><strong>Note:</strong> Executing <code>app.py</code> automatically initializes and manages the background MediaMTX instance, starts the WebSockets control pipeline, and serves the browser UI.</p>
 </blockquote>
 
 <p>Once running, access the controller from any smartphone or computer on the same network:</p>
