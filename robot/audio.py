@@ -14,7 +14,7 @@ CHUNK = 960
 p = pyaudio.PyAudio()
 
 class I2SMicTrack(MediaStreamTrack):
-    """Captures audio from the I2S microphone to send to the browser."""
+    # Captures audio from the I2S microphone to send to the browser.
     kind = "audio"
     
     def __init__(self):
@@ -36,7 +36,7 @@ class I2SMicTrack(MediaStreamTrack):
         return frame
 
 async def play_browser_audio(track):
-    """Receives audio from the browser and plays it on the I2S amplifier."""
+    # Receives audio from the browser and plays it on the I2S amplifier.
     stream = p.open(format=FORMAT, channels=CHANNELS, rate=RATE, 
                     output=True, frames_per_buffer=CHUNK)
     while True:
@@ -50,5 +50,5 @@ async def play_browser_audio(track):
             break
 
 def cleanup_audio():
-    """Terminates the PyAudio instance cleanly."""
+    # Terminates the PyAudio instance cleanly.
     p.terminate()

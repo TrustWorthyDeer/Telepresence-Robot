@@ -2,10 +2,10 @@ import asyncio
 import time
 import robot.state as state
 from config import COMMAND_TIMEOUT_MS, WATCHDOG_INTERVAL
-from robot.state import clients, robot_state
+from robot.state import active_client, robot_state
 
 async def stop_robot():
-    """Safety action: zero out movement controls if connection drops."""
+    # Safety action: zero out movement controls if connection drops.
     changed = False
 
     if robot_state["throttle"] != 0:
@@ -18,20 +18,20 @@ async def stop_robot():
 
     if changed:
         print("[WATCHDOG] Safety Timeout: STOP ROBOT")
-        from robot.websocket import broadcast_state
-        await broadcast_state()
+        from robot.websocket import send_active_state
+        await send_active_state()
 
         # Hardware UART / GPIO commands will go here later
 
 
 async def watchdog_loop(app):
-    """Background async task checking for heartbeats every WATCHDOG_INTERVAL seconds."""
+    # Background async task checking for heartbeats every WATCHDOG_INTERVAL seconds.
     try:
         while True:
             time_since_last_cmd = (time.monotonic() - state.last_command_time) * 1000
 
             # Stop robot if no browser is connected or timeout exceeded
-            if len(clients) == 0:
+            if active_client == None:
                 await stop_robot()
             elif time_since_last_cmd > COMMAND_TIMEOUT_MS:
                 await stop_robot()

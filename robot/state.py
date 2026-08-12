@@ -1,6 +1,6 @@
 import time
 
-clients = set()
+active_client = None
 
 robot_state = {
     "type": "state",

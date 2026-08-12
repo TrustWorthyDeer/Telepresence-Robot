@@ -6,8 +6,6 @@ const steeringTrack = steeringThumb.parentElement;
 let throttle = 0;
 let steering = 0;
 
-const DEADZONE = 0.2;
-
 let headlights = false;
 let floodlights = false;
 
@@ -21,7 +19,6 @@ function renderControls() {
   throttleThumb.style.top = `${throttleY + thumbHeight / 2}px`;
 
   // ---------- Steering ----------
-
   const sRect = steeringTrack.getBoundingClientRect();
   const thumbWidth = steeringThumb.offsetWidth;
   const steeringTravel = sRect.width - thumbWidth;
@@ -31,7 +28,6 @@ function renderControls() {
 }
 
 /* THROTTLE */
-
 throttleTrack.addEventListener('pointerdown', startThrottle);
 
 function startThrottle(e) {
@@ -52,10 +48,6 @@ function updateThrottle(e) {
   const travel = rect.height - throttleThumb.offsetHeight;
 
   let value = 1 - ((y - thumbHalf) / travel) * 2;
-  if (Math.abs(value) < DEADZONE) {
-    value = 0;
-  }
-
   throttle = value;
 
   renderControls();
@@ -67,6 +59,11 @@ function stopThrottle(e) {
   throttleTrack.removeEventListener('pointermove', updateThrottle);
   throttleTrack.removeEventListener('pointerup', stopThrottle);
   throttleTrack.removeEventListener('pointercancel', stopThrottle);
+
+  // Magnetic spring back to zero
+  throttle = 0;
+  renderControls();
+  sendControls();
 }
 
 /* STEERING */
@@ -90,10 +87,6 @@ function updateSteering(e) {
   const travel = rect.width - steeringThumb.offsetWidth;
 
   let value = ((x - thumbHalf) / travel) * 2 - 1;
-  if (Math.abs(value) < DEADZONE) {
-    value = 0;
-  }
-
   steering = value;
 
   renderControls();
@@ -105,6 +98,10 @@ function stopSteering(e) {
   steeringTrack.removeEventListener('pointermove', updateSteering);
   steeringTrack.removeEventListener('pointerup', stopSteering);
   steeringTrack.removeEventListener('pointercancel', stopSteering);
+
+  steering = 0;
+  renderControls();
+  sendControls();
 }
 
 /* UTILITIES */

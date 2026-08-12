@@ -2,21 +2,24 @@ import os
 import subprocess
 import asyncio
 from aiohttp import web
-# from robot.audio import cleanup_audio
 
+import robot.state as state
 from robot.webrtc import websocket_handler as audio_ws_handler
 from robot.websocket import control_websocket_handler
 from robot.watchdog import watchdog_loop
-
-import robot.state as state
 from robot.motors import DirectPiMotorDriver
+# from robot.audio import cleanup_audio
+
+from config import *
+
 
 async def index(request):
-    """Serves the frontend HTML interface."""
+    # Serves the frontend HTML interface.
     return web.FileResponse(os.path.join(os.path.dirname(__file__), "index.html"))
 
+
 async def start_mediamtx(app):
-    """Starts MediaMTX as a subprocess when the web server starts."""
+    # Starts MediaMTX as a subprocess when the web server starts.
     print("Starting MediaMTX subprocess...")
     
     # Get the directory where app.py is located
@@ -33,10 +36,8 @@ async def start_mediamtx(app):
 
 
 async def motor_control_loop(app):
-    """
-    Background task: Reads the central state every 50ms (20Hz) 
-    and applies it to the motor driver.
-    """
+    # Background task: Reads the central state every 50ms (20Hz) 
+    # and applies it to the motor driver.
     motor_driver = app["motor_driver"]
     try:
         while True:
@@ -57,19 +58,21 @@ async def motor_control_loop(app):
 
 
 async def start_background_tasks(app):
-    """Starts Watchdog task in background."""
+    # Starts Watchdog task in background.
     app["watchdog_task"] = asyncio.create_task(watchdog_loop(app))
     app["motor_task"] = asyncio.create_task(motor_control_loop(app))
 
+
 async def cleanup_background_tasks(app):
-    """Cancels Watchdog task and MediaMTX on shutdown."""
+    # Cancels Watchdog task and MediaMTX on shutdown.
     app["watchdog_task"].cancel()
     app["motor_task"].cancel()
     await app["watchdog_task"]
     await app["motor_task"]
 
+
 async def on_shutdown(app):
-    """Frees hardware resources when the server stops."""
+    # Frees hardware resources when the server stops.
     # Stop Motors safely
     print("Shutting down hardware resources...")
     print("Stopping Motors...")
@@ -82,15 +85,17 @@ async def on_shutdown(app):
         mtx_process.terminate()
         mtx_process.wait()  # Wait for the process to exit cleanly
         
-    # 2. Terminate PyAudio
-    print("Stopping Audio...")
+    # Terminate PyAudio
+    # print("Stopping Audio...")
     # cleanup_audio()
+
     print("Shutdown complete.")
+
 
 def main():
     app = web.Application()
 
-    app["motor_driver"] = DirectPiMotorDriver(in1=18, in2=19, in3=12, in4=13)
+    app["motor_driver"] = DirectPiMotorDriver(in1=D0, in2=D1, in3=D2, in4=D3, min_pwm=PWM_MIN, max_pwm=PWM_MAX)
     
     # Register the startup and teardown functions
     app.on_startup.append(start_mediamtx)
@@ -110,6 +115,7 @@ def main():
 
     print("Modular Telepresence Server running on http://0.0.0.0:8080")
     web.run_app(app, host="0.0.0.0", port=8080)
+
 
 if __name__ == "__main__":
     main()

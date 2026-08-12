@@ -2,35 +2,32 @@ import json
 import time
 from aiohttp import web
 import robot.state as state
-from robot.state import clients, robot_state
+from robot.state import active_client, robot_state
 
-async def broadcast_state():
-    """Broadcasts current robot state to all connected control clients."""
-    dead = set()
-    state_json = json.dumps(robot_state)
-    
-    for client in list(clients):
+async def send_active_state():
+    # Sends current state to the single active connected client.
+    global active_client
+    if active_client and not active_client.closed:
         try:
-            await client.send_str(state_json)
+            await active_client.send_str(json.dumps(robot_state))
         except Exception:
-            dead.add(client)
-
-    for client in dead:
-        clients.discard(client)
+            active_client = None
 
 
 async def control_websocket_handler(request):
-    """aiohttp WebSocket handler for robot controls and heartbeat telemetry."""
+    # aiohttp WebSocket handler for robot controls and heartbeat telemetry.
 
-    if len(clients) >= 1:
-        print("[WS Control] Connection rejected: Another client is already connected.")
+     # Single-client enforcement lock
+    global active_client
+    if active_client is not None and not active_client.closed:
+        print("[WS Control] Connection rejected: Robot is already controlled by an active client.")
         return web.HTTPForbidden(reason="Robot is already in use by another client.")
 
     ws = web.WebSocketResponse()
     await ws.prepare(request)
 
+    active_client = ws
     print("[WS Control] Browser joystick connected")
-    clients.add(ws)
     
     # Update command timestamp upon connection
     state.last_command_time = time.monotonic()
@@ -60,13 +57,15 @@ async def control_websocket_handler(request):
                     f"F-Lights: {robot_state['floodlights']}"
                 )
 
-                await broadcast_state()
+                await send_active_state()
 
             elif msg.type == web.WSMsgType.ERROR:
                 print(f"[WS Control] Error: {ws.exception()}")
 
     finally:
-        clients.discard(ws)
+        if active_client == ws:
+            active_client = None
+        
         print("[WS Control] Browser joystick disconnected")
         
         # Trigger immediate emergency stop when client disconnects
@@ -74,3 +73,4 @@ async def control_websocket_handler(request):
         await stop_robot()
 
     return ws
+
