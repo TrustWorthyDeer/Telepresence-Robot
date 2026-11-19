@@ -80,8 +80,6 @@ html {
     max-height: 100%;
     aspect-ratio: 4 / 3;
     object-fit: contain;
-    filter: url(#bgr-to-rgb);
-    transform: rotate(180deg);
 }
 
 /* --- Controls Layer Overlay --- */
