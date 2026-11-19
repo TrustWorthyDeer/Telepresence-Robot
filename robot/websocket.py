@@ -2,31 +2,28 @@ import json
 import time
 from aiohttp import web
 import robot.state as state
-from robot.state import active_client, robot_state
+from robot.state import robot_state
 
 async def send_active_state():
     # Sends current state to the single active connected client.
-    global active_client
-    if active_client and not active_client.closed:
+    if state.active_client and not state.active_client.closed:
         try:
-            await active_client.send_str(json.dumps(robot_state))
+            await state.active_client.send_str(json.dumps(robot_state))
         except Exception:
-            active_client = None
-
+            state.active_client = None
 
 async def control_websocket_handler(request):
     # aiohttp WebSocket handler for robot controls and heartbeat telemetry.
 
      # Single-client enforcement lock
-    global active_client
-    if active_client is not None and not active_client.closed:
+    if state.active_client is not None and not state.active_client.closed:
         print("[WS Control] Connection rejected: Robot is already controlled by an active client.")
         return web.HTTPForbidden(reason="Robot is already in use by another client.")
 
     ws = web.WebSocketResponse()
     await ws.prepare(request)
 
-    active_client = ws
+    state.active_client = ws
     print("[WS Control] Browser joystick connected")
     
     # Update command timestamp upon connection
@@ -63,8 +60,8 @@ async def control_websocket_handler(request):
                 print(f"[WS Control] Error: {ws.exception()}")
 
     finally:
-        if active_client == ws:
-            active_client = None
+        if state.active_client == ws:
+            state.active_client = None
         
         print("[WS Control] Browser joystick disconnected")
         
