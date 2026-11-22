@@ -1,5 +1,6 @@
 let controlWS = null;
 let heartbeatInterval = null;
+let serverClockOffset = null;
 const telemetryDiv = document.getElementById('telemetry');
 
 const connectOverlay = document.getElementById('connectOverlay');
@@ -17,6 +18,11 @@ function connectRobot() {
 
   controlWS.onopen = () => {
     console.log('[WS Control] Connected');
+    serverClockOffset = null;
+    controlWS.send(JSON.stringify({
+      type: 'clock_sync',
+      client_time: performance.now() / 1000,
+    }));
 
     // Toggle UI
     connectOverlay.classList.add('hidden');
@@ -36,6 +42,14 @@ function connectRobot() {
 
   controlWS.onmessage = (event) => {
     const robotState = JSON.parse(event.data);
+    if (robotState.type === 'clock_sync') {
+      const receivedAt = performance.now() / 1000;
+      serverClockOffset =
+        robotState.server_time -
+        (robotState.client_time + receivedAt) / 2;
+      return;
+    }
+
     // Sync UI with initial state received from Python server
     if (typeof updateStateFromServer === 'function') {
       updateStateFromServer(robotState);
@@ -66,6 +80,7 @@ function disconnectRobot() {
     controlWS.close();
     controlWS = null;
   }
+  serverClockOffset = null;
 
   // Stop WebRTC stream
   stopWebRTC();
@@ -79,12 +94,17 @@ function disconnectRobot() {
 }
 
 function sendControls() {
-  if (controlWS && controlWS.readyState === WebSocket.OPEN) {
+  if (
+    controlWS &&
+    controlWS.readyState === WebSocket.OPEN &&
+    serverClockOffset !== null
+  ) {
     const payload = {
       throttle: throttle,
       steering: steering,
       headlights: headlights,
       floodlights: floodlights,
+      sent_at: performance.now() / 1000 + serverClockOffset,
     };
     controlWS.send(JSON.stringify(payload));
   }

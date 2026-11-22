@@ -1,8 +1,19 @@
 import json
+import math
 import time
 from aiohttp import web
 import robot.state as state
 from robot.state import robot_state
+from config import MAX_CONTROL_AGE_MS
+
+
+def is_fresh_control_command(sent_at, received_at):
+    age_ms = (received_at - sent_at) * 1000
+    return (
+        math.isfinite(age_ms)
+        and -MAX_CONTROL_AGE_MS <= age_ms <= MAX_CONTROL_AGE_MS
+    )
+
 
 async def send_active_state():
     # Sends current state to the single active connected client.
@@ -37,8 +48,27 @@ async def control_websocket_handler(request):
             if msg.type == web.WSMsgType.TEXT:
                 data = json.loads(msg.data)
                 
-                # Reset Watchdog timer
-                state.last_command_time = time.monotonic()
+                if data.get("type") == "clock_sync":
+                    await ws.send_str(json.dumps({
+                        "type": "clock_sync",
+                        "client_time": float(data["client_time"]),
+                        "server_time": time.monotonic(),
+                    }))
+                    continue
+
+                received_at = time.monotonic()
+                try:
+                    sent_at = float(data["sent_at"])
+                except (KeyError, TypeError, ValueError):
+                    continue
+
+                if not is_fresh_control_command(sent_at, received_at):
+                    print("[WS Control] Dropping stale control frame; stopping robot.")
+                    from robot.watchdog import stop_robot
+                    await stop_robot()
+                    continue
+
+                state.last_command_time = received_at
 
                 # Update control state
                 robot_state["throttle"] = float(data.get("throttle", 0.0))

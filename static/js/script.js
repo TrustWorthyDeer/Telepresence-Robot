@@ -139,8 +139,6 @@ document
   .addEventListener('click', toggleFloodlights);
 
 function updateStateFromServer(state) {
-  if (state.throttle !== undefined) throttle = state.throttle;
-  if (state.steering !== undefined) steering = state.steering;
   if (state.headlights !== undefined) {
     headlights = state.headlights;
     const lightsBtn = document.getElementById('lightsBtn');
@@ -151,5 +149,4 @@ function updateStateFromServer(state) {
     const floodBtn = document.getElementById('floodBtn');
     if (floodBtn) floodBtn.classList.toggle('active', floodlights);
   }
-  renderControls();
 }

@@ -46,8 +46,8 @@ async def motor_control_loop(app):
                 throttle = state.robot_state.get("throttle", 0.0)
                 steering = state.robot_state.get("steering", 0.0)
                 
-                # 2. Send directly to hardware
-                motor_driver.set_motors(throttle=throttle, steering=steering)
+                # The rear-facing camera reverses forward and reverse.
+                motor_driver.set_motors(throttle=-throttle, steering=steering)
             except Exception as e:
                 print(f"[Motor Error] Failed to update motor PWM: {e}")
             
@@ -64,15 +64,33 @@ async def start_background_tasks(app):
 
 
 async def cleanup_background_tasks(app):
-    # Cancels Watchdog task and MediaMTX on shutdown.
-    app["watchdog_task"].cancel()
-    app["motor_task"].cancel()
-    await app["watchdog_task"]
-    await app["motor_task"]
+    # Stop background loops before releasing the hardware they use.
+    tasks = [
+        app[task_name]
+        for task_name in ("watchdog_task", "motor_task")
+        if task_name in app
+    ]
+    for task in tasks:
+        if not task.done():
+            task.cancel()
+
+    results = await asyncio.gather(*tasks, return_exceptions=True)
+    for result in results:
+        if isinstance(result, BaseException) and not isinstance(
+            result, asyncio.CancelledError
+        ):
+            raise result
 
 
 async def on_shutdown(app):
     # Frees hardware resources when the server stops.
+    if state.active_client is not None and not state.active_client.closed:
+        await state.active_client.close(
+            code=web.WSCloseCode.GOING_AWAY,
+            message=b"Server shutting down",
+        )
+    await cleanup_background_tasks(app)
+
     # Stop Motors safely
     print("Shutting down hardware resources...")
     print("Stopping Motors...")
@@ -100,7 +118,6 @@ def main():
     # Register the startup and teardown functions
     app.on_startup.append(start_mediamtx)
     app.on_startup.append(start_background_tasks)
-    app.on_cleanup.append(cleanup_background_tasks)
     app.on_shutdown.append(on_shutdown)
 
     # Setup web routes
